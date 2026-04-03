@@ -51,19 +51,20 @@ def scrapear():
             cells = stock.find_elements(By.CSS_SELECTOR, "th, td")
             raw_values = [c.text.replace('\n',' ').strip() for c in cells]
 
-            # Filtro filas válidas
-            if len(raw_values) < 7 or not raw_values[0]:
+            # 🔴 MUY IMPORTANTE → solo filas con TODAS las columnas reales del IBEX
+            if len(raw_values) < 10:
                 continue
 
-            # Extraemos solo lo que nos interesa
+            # 🔥 Nos quedamos SOLO con las columnas que pide la práctica
             nombre = raw_values[0]
             ultima = raw_values[1].replace('.', '').replace(',', '.')
             maximo = raw_values[5].replace('.', '').replace(',', '.')
             minimo = raw_values[6].replace('.', '').replace(',', '.')
-            hora = raw_values[-1]
 
-            datos.append([nombre, ultima, maximo, minimo, hora])
+            # 🕒 Timestamp REAL generado por nosotros
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+            datos.append([nombre, ultima, maximo, minimo, timestamp])
         # Guardamos en CSV
         with open(CSV_FILE, "a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
@@ -83,7 +84,7 @@ try:
     while True:
         ahora = datetime.now()
         # Ejecutar solo en horario permitido
-        if (ahora.weekday() < 6 and
+        if (ahora.weekday() < 7 and
             (ahora.hour > hora_inicio or (ahora.hour == hora_inicio and ahora.minute >= minuto_inicio)) and
             (ahora.hour < hora_fin or (ahora.hour == hora_fin and ahora.minute <= minuto_fin))):
             
