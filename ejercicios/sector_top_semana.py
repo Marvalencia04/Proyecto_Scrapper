@@ -3,71 +3,101 @@ from join_datasets import *
 from datetime import datetime
 from collections import defaultdict
 
-print("📊 Analizador IBEX por sectores y semanas\n")
+# ===================================================
+# 🛠 SECCIÓN: HERRAMIENTAS (Carga y Validación)
+# ===================================================
 
-# ---------------------------------------------------
-# 1️⃣ Cargar datos
-# ---------------------------------------------------
+# 👉 ENTRADA: Archivos CSV brutos
+# 👈 SALIDA: Listas de diccionarios
 datos_ibex = leer_todos_los_csv()
 datos_extra = leer_csv_diccionario("../info_empresas.csv")
 
-# ---------------------------------------------------
-# 2️⃣ Mostrar semanas disponibles
-# ---------------------------------------------------
-semanas_disponibles = sorted({
-    parsear_fecha(fila["Hora/Fecha"]).isocalendar()[1]
-    for fila in datos_ibex
-    if parsear_fecha(fila["Hora/Fecha"])
-})
+def obtener_semanas_validas(datos_ibex):
+    """
+    👉 ENTRADA: Lista de diccionarios del IBEX.
+    👈 SALIDA: Lista de semanas que tienen datos suficientes para ser analizadas (>100 registros).
+    """
+    conteo_semanas = defaultdict(int)
+    for fila in datos_ibex:
+        fecha = parsear_fecha(fila["Hora/Fecha"])
+        if fecha:
+            semana = fecha.isocalendar()[1]
+            conteo_semanas[semana] += 1
+    
+    # Solo devolvemos semanas con datos suficientes (evita las que solo tienen 35 registros)
+    return sorted([s for s, conteo in conteo_semanas.items() if conteo > 100])
 
-print("📆 Semanas disponibles en los datos:")
-print("-----------------------------------")
-for s in semanas_disponibles:
-    print("Semana", s)
+# ===================================================
+# 🗺 SECCIÓN: MAP (Cruce de Datos)
+# ===================================================
 
-# ---------------------------------------------------
-# 3️⃣ Elegir semana por consola
-# ---------------------------------------------------
-semana_usuario = int(input("\n👉 Escribe la semana a analizar: "))
+def realizar_join_sectores(var_dict, datos_extra):
+    """
+    👉 ENTRADA: Variaciones y datos de sectores.
+    👈 SALIDA: Variaciones agrupadas por Sector.
+    """
+    sectores = defaultdict(list)
+    for nombre, variacion in var_dict.items():
+        for empresa in datos_extra:
+            if empresa["Nombre"] == nombre:
+                sector = empresa["Sector"]
+                sectores[sector].append(variacion)
+    return sectores
 
-# ---------------------------------------------------
-# 4️⃣ Filtrar datos de esa semana
-# ---------------------------------------------------
-datos_semana = filtrar_por_semana(datos_ibex, semana_usuario)
-print(f"\n📅 Registros encontrados semana {semana_usuario}: {len(datos_semana)}")
+# ===================================================
+# 📉 SECCIÓN: REDUCE (Cálculo Final)
+# ===================================================
 
-# ---------------------------------------------------
-# 5️⃣ Calcular variación semanal por acción
-# ---------------------------------------------------
-variaciones = calcular_variacion_por_accion(datos_semana)
+def calcular_medias_sectoriales(sectores_agrupados):
+    """
+    👉 ENTRADA: Diccionario por sectores.
+    👈 SALIDA: Ranking de medias por sector.
+    """
+    media_sector = []
+    for sector, valores in sectores_agrupados.items():
+        media = round(sum(valores) / len(valores), 2)
+        media_sector.append((sector, media))
+    
+    media_sector.sort(key=lambda x: x[1], reverse=True)
+    return media_sector
 
-# convertir lista -> diccionario
-var_dict = {nombre: var for nombre, var in variaciones}
+# ===================================================
+# 🚀 EJECUCIÓN PRINCIPAL
+# ===================================================
 
-# ---------------------------------------------------
-# 6️⃣ JOIN CORRECTO (variaciones + info empresas)
-# ---------------------------------------------------
-sectores = defaultdict(list)
+if __name__ == "__main__":
+    print("📊 Analizador IBEX Profesional\n")
 
-for nombre, variacion in var_dict.items():
-    for empresa in datos_extra:
-        if empresa["Nombre"] == nombre:
-            sector = empresa["Sector"]
-            sectores[sector].append(variacion)
+    # 1. Identificar solo semanas con datos útiles
+    semanas_reales = obtener_semanas_validas(datos_ibex)
 
-# ---------------------------------------------------
-# 7️⃣ Media por sector
-# ---------------------------------------------------
-media_sector = []
-for sector, valores in sectores.items():
-    media = round(sum(valores) / len(valores), 2)
-    media_sector.append((sector, media))
+    if not semanas_reales:
+        print("❌ No se han encontrado semanas con datos suficientes para analizar.")
+    else:
+        print("📆 Semanas con datos completos disponibles:")
+        print("------------------------------------------")
+        for s in semanas_reales:
+            print(f"Semana {s}")
 
-media_sector.sort(key=lambda x: x[1], reverse=True)
+        # 2. Selección de semana
+        try:
+            semana_usuario = int(input("\n👉 Selecciona una semana válida: "))
 
-# ---------------------------------------------------
-# 8️⃣ Mostrar resultados
-# ---------------------------------------------------
-print("\n🏆 Sectores que más suben esa semana:\n")
-for sector, media in media_sector:
-    print(f"{sector:20} {media}%")
+            if semana_usuario not in semanas_reales:
+                print(f"⚠️ La semana {semana_usuario} no tiene datos suficientes. Elige una de la lista.")
+            else:
+                # 3. Proceso MapReduce
+                datos_semana = filtrar_por_semana(datos_ibex, semana_usuario)
+                variaciones = calcular_variacion_por_accion(datos_semana)
+                var_dict = {nombre: var for nombre, var in variaciones}
+
+                sectores_agrupados = realizar_join_sectores(var_dict, datos_extra)
+                resultados = calcular_medias_sectoriales(sectores_agrupados)
+
+                # 4. Mostrar resultados
+                print(f"\n🏆 Resultados Sectoriales Semana {semana_usuario}:\n")
+                for sector, media in resultados:
+                    print(f"{sector:20} {media}%")
+
+        except ValueError:
+            print("❌ Error: Introduce un número entero.")
