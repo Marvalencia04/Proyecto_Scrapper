@@ -51,4 +51,4 @@ def filtrar_por_rango_fechas(fecha_inicio_str, fecha_fin_str):
 # ejecutar filtros
 semana_31 = filtrar_por_semana(31)
 mes_3 = filtrar_por_mes(3)
-rango_fechas = filtrar_por_rango_fechas("01/03/25", "31/06/25")
+rango_fechas = filtrar_por_rango_fechas("01/03/25", "30/06/25")
