@@ -3,6 +3,21 @@ from datetime import datetime
 
 datos = leer_datos_csv('./ibex_2025.csv')
 
+def parsear_fecha(fecha_str):
+    formatos = [
+        "%d/%m/%y %H:%M:%S",  # con hora (nuevo)
+        "%d/%m/%y"            # sin hora (viejo)
+    ]
+    
+    for formato in formatos:
+        try:
+            return datetime.strptime(fecha_str, formato)
+        except ValueError:
+            pass
+    
+    raise ValueError(f"Formato de fecha desconocido: {fecha_str}")
+
+
 # Generar un listado semanal (de la semana actual) donde se indique, para cada acción, su valor inicial, final, mínimo y máximo.
 def filtrar_por_semana(numero_semana):
     #datos = leer_csv.leer_datos_csv(nombre_archivo)
@@ -10,8 +25,8 @@ def filtrar_por_semana(numero_semana):
 
     for fila in datos:
         fecha_str = fila["Hora/Fecha"]
-        fecha = datetime.strptime(fecha_str, "%d/%m/%y")
-        
+        fecha = parsear_fecha(fecha_str)
+
         if fecha.isocalendar()[1] == numero_semana:
             datos_filtrados.append(fila)
 
@@ -24,7 +39,7 @@ def filtrar_por_mes(numero_mes):
 
     for fila in datos:
         fecha_str = fila["Hora/Fecha"]
-        fecha = datetime.strptime(fecha_str, "%d/%m/%y")
+        fecha = parsear_fecha(fecha_str)
         
         if fecha.month == numero_mes:
             datos_filtrados.append(fila)
@@ -33,15 +48,15 @@ def filtrar_por_mes(numero_mes):
 
 # Filtrar por rango de fechas (por ejemplo, del 01/03/2025 al 31/03/2025)
 def filtrar_por_rango_fechas(fecha_inicio_str, fecha_fin_str):
-    fecha_inicio = datetime.strptime(fecha_inicio_str, "%d/%m/%y")
-    fecha_fin = datetime.strptime(fecha_fin_str, "%d/%m/%y")
-    
+    fecha_inicio = parsear_fecha(fecha_inicio_str)
+    fecha_fin = parsear_fecha(fecha_fin_str)
+
     datos_filtrados = []
 
     for fila in datos:
         fecha_str = fila["Hora/Fecha"]
-        fecha = datetime.strptime(fecha_str, "%d/%m/%y")
-        
+        fecha = parsear_fecha(fecha_str)
+
         if fecha_inicio <= fecha <= fecha_fin:
             datos_filtrados.append(fila)
 

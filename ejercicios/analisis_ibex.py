@@ -124,25 +124,26 @@ def top_bajadas(datos_filtrados, n=5):
 # 6️⃣ EJECUCIÓN
 # ===================================================
 
-hoy = datetime.now()
-semana_actual = hoy.isocalendar()[1]
-mes_actual = hoy.month
+if __name__ == "__main__":
+    hoy = datetime.now()
+    semana_actual = hoy.isocalendar()[1]
+    mes_actual = hoy.month
 
-datos_semana = filtrar_por_semana(datos, semana_actual)
-datos_mes = filtrar_por_mes(datos, mes_actual)
+    datos_semana = filtrar_por_semana(datos, semana_actual)
+    datos_mes = filtrar_por_mes(datos, mes_actual)
 
-print("\n📈 TOP 5 SUBIDAS SEMANA")
-for accion in top_subidas(datos_semana):
-    print(accion)
+    print("\n📈 TOP 5 SUBIDAS SEMANA")
+    for accion in top_subidas(datos_semana):
+        print(accion)
 
-print("\n📉 TOP 5 BAJADAS SEMANA")
-for accion in top_bajadas(datos_semana):
-    print(accion)
+    print("\n📉 TOP 5 BAJADAS SEMANA")
+    for accion in top_bajadas(datos_semana):
+        print(accion)
 
-print("\n📈 TOP 5 SUBIDAS MES")
-for accion in top_subidas(datos_mes):
-    print(accion)
+    print("\n📈 TOP 5 SUBIDAS MES")
+    for accion in top_subidas(datos_mes):
+        print(accion)
 
-print("\n📉 TOP 5 BAJADAS MES")
-for accion in top_bajadas(datos_mes):
-    print(accion)
+    print("\n📉 TOP 5 BAJADAS MES")
+    for accion in top_bajadas(datos_mes):
+        print(accion)
