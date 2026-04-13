@@ -1,13 +1,10 @@
-from leer_csv import *
+from analisis_ibex import leer_todos_los_csv
 from datetime import datetime
 
-datos = leer_datos_csv('./ibex_2025.csv')
+datos = leer_todos_los_csv()
 
 def parsear_fecha(fecha_str):
-    formatos = [
-        "%d/%m/%y %H:%M:%S",  # con hora (nuevo)
-        "%d/%m/%y"            # sin hora (viejo)
-    ]
+    formatos = ["%Y-%m-%d %H:%M:%S", "%d/%m/%y %H:%M:%S", "%d/%m/%y", "%d/%m"]
     
     for formato in formatos:
         try:
@@ -48,14 +45,14 @@ def filtrar_por_mes(numero_mes):
 
 # Filtrar por rango de fechas (por ejemplo, del 01/03/2025 al 31/03/2025)
 def filtrar_por_rango_fechas(fecha_inicio_str, fecha_fin_str):
-    fecha_inicio = parsear_fecha(fecha_inicio_str)
-    fecha_fin = parsear_fecha(fecha_fin_str)
+    fecha_inicio = parsear_fecha(fecha_inicio_str).date()
+    fecha_fin = parsear_fecha(fecha_fin_str).date()
 
     datos_filtrados = []
 
     for fila in datos:
         fecha_str = fila["Hora/Fecha"]
-        fecha = parsear_fecha(fecha_str)
+        fecha = parsear_fecha(fecha_str).date()
 
         if fecha_inicio <= fecha <= fecha_fin:
             datos_filtrados.append(fila)

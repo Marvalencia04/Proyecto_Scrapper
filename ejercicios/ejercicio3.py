@@ -1,8 +1,5 @@
-from leer_csv import *
 from filtros_tiempo import filtrar_por_rango_fechas
 from operaciones import obtener_maximo, obtener_minimo, obtener_ultimo_valor, calcular_porcentajes
-
-datos = leer_datos_csv('./ibex_2025.csv')
 
 # 3. Dado el nombre de una acci´on y un rango de fechas, obtener su valor m´ınimo y m´aximo de
 # cotizaci´on, as´ı como el el porcentaje de decremento y de incremento desde el valor inicial de

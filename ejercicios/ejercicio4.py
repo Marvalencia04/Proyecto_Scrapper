@@ -1,20 +1,18 @@
 import datetime
-from leer_csv import *
 from filtros_tiempo import filtrar_por_rango_fechas, filtrar_por_semana, filtrar_por_mes
 from operaciones import obtener_maximo, obtener_minimo, obtener_ultimo_valor, calcular_porcentajes
 
-datos = leer_datos_csv('./ibex_2025.csv')
 
 # 3. Dado el nombre de una acci´on y un rango de fechas, obtener su valor m´ınimo y m´aximo de
 # cotizaci´on, as´ı como el el porcentaje de decremento y de incremento desde el valor inicial de
 # cotizaci´on hasta el m´ınimo y m´aximo, respectivamente.
 
-def ejercicio4(accion):
-    hoy = datetime.now()
+def ejercicio4(accion, fecha_dia):
+    hoy = datetime.datetime.strptime(fecha_dia, "%d/%m/%y")
     semana_actual = hoy.isocalendar()[1]
     mes_actual = hoy.month
-    
-    datos_filtrados_hoy = filtrar_por_rango_fechas(hoy.strftime("%d/%m/%y"), hoy.strftime("%d/%m/%y"))
+
+    datos_filtrados_hoy = filtrar_por_rango_fechas(str(fecha_dia), str(fecha_dia))
     datos_filtrados_semana = filtrar_por_semana(semana_actual)
     datos_filtrados_mes = filtrar_por_mes(mes_actual)
     
@@ -38,7 +36,8 @@ def ejercicio4(accion):
 # uso, pasar parametros por consola
 if __name__ == "__main__":
     accion = input("Ingrese el nombre de la acción: ")
+    fecha_dia = input("Ingrese la fecha del día (dd/mm/yy): ")
     
-    resultado = ejercicio4(accion)
+    resultado = ejercicio4(accion, fecha_dia)
     print(resultado)
     
