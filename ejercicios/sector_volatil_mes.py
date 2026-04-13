@@ -5,7 +5,7 @@ from join_datasets import leer_csv_diccionario
 
 
 # ===================================================
-# 🛠 SECCIÓN: UTILS (Filtrado y Validación)
+# 🛠 SECCIÓN: HERRAMIENTAS (Filtrado y Validación)
 # ===================================================
 
 def obtener_meses_validos(datos):
